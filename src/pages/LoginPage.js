@@ -75,6 +75,8 @@ class LoginPage extends React.Component {
         return 'Email Invalido'
       case 'auth/user-disabled':
         return 'Usuario desabilitado'
+      case 'auth/weak-password':
+        return 'Senha deve ter mais de 6 caracteres'
       default:
         return 'Erro desconhecido'
     }
@@ -115,6 +117,8 @@ class LoginPage extends React.Component {
             placeholder="seu@email.com"
             value={ this.state.email }
             onChangeText={ value => this.onChangeHandler('email', value) }
+            keyboardType='email-address'
+            autoCapitalize='none'
           />
         </FormRow>
         <FormRow>
