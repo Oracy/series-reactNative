@@ -18,7 +18,7 @@ class LoginPage extends React.Component {
     super(props)
 
     this.state = {
-      mail: '',
+      email: '',
       password: '',
       isLoading: false,
       message: '',
@@ -45,12 +45,23 @@ class LoginPage extends React.Component {
 
   tryLogin(){
     this.setState({ isLoading: true, message: ''})
-    const { mail: email, password } = this.state
+    const { email, password } = this.state
 
     this.props.tryLogin({email, password})
-      .then(() => {
-        this.setState({ message: 'Sucesso!' })
-        this.props.navigation.replace('Main')
+      .then(user => {
+        if(user){
+          this.props.navigation.replace('Main')
+        } else {
+          this.setState({
+            isLoading: false,
+            message: ''
+          })
+        }
+      }).catch( err => {
+        this.setState({
+          isLoading: false,
+          message: this.getMessageByErrorCode(err.code)
+        })
       })
   }
 
@@ -102,8 +113,8 @@ class LoginPage extends React.Component {
             underlineColorAndroid={ 'gray' }
             style={ styles.input }
             placeholder="seu@email.com"
-            value={ this.state.mail }
-            onChangeText={ value => this.onChangeHandler('mail', value) }
+            value={ this.state.email }
+            onChangeText={ value => this.onChangeHandler('email', value) }
           />
         </FormRow>
         <FormRow>

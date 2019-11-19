@@ -20,32 +20,32 @@ export const tryLogin = ({ email, password }) => dispatch => {
     .then(user => {
       const action = userLoginSuccess(user)
       dispatch(action)
+      return user
     })
     .catch( err => {
       if(err.code === 'auth/user-not-found') {
-        return Alert.alert(
-          'Usuario nao encontrado',
-          'Deseja criar um novo usuario?',
-          [{
-            text: 'Nao',
-            onPress: () => {
-              console.log('Nao criar novo usuario')
-            },
-            style: 'cancel'
-          }, {
-            text: 'Sim',
-            onPress: () => {
-              firebase
-                .auth()
-                .createUserWithEmailAndPassword(mail, password)
-                .then(loginUserSuccess)
-                .catch(loginUserFailed)
-            }
-          }],
-          { cancelable: false }
-        )
+        return new Promise((resolve, reject) => {
+          Alert.alert(
+            'Usuario nao encontrado',
+            'Deseja criar um novo usuario?',
+            [{
+              text: 'Nao',
+              onPress: () => resolve(),
+              style: 'cancel'
+            }, {
+              text: 'Sim',
+              onPress: () => {
+                firebase
+                  .auth()
+                  .createUserWithEmailAndPassword(email, password)
+                  .then(resolve)
+                  .catch(reject)
+              }
+            }],
+            { cancelable: false }
+          )
+        })
       }
-      loginUserFailed(err)
+      return Promise.reject(err)
     })
-    .then( () => this.setState({ isLoading: false }))
 }
