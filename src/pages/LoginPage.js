@@ -8,10 +8,12 @@ import {  ActivityIndicator,
           Alert
         } from 'react-native'
 import firebase from 'firebase'
+import { connect } from 'react-redux'
 
+import { tryLogin } from '../actions/index'
 import FormRow from '../components/FormRow'
 
-export default class LoginPage extends React.Component {
+class LoginPage extends React.Component {
   constructor(props){
     super(props)
 
@@ -42,48 +44,14 @@ export default class LoginPage extends React.Component {
   }
 
   tryLogin(){
-    this.setState({ isLoading: true, message: '' })
-    const { mail, password } = this.state
+    this.setState({ isLoading: true, message: ''})
+    const { mail: email, password } = this.state
 
-    const loginUserSuccess = user => {
-      this.setState({ message: 'Sucesso' })
-    }
-
-    const loginUserFailed = err => {
-      this.setState({ message: this.getMessageByErrorCode(err.code) })
-    }
-
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(mail, password)
-      .then(loginUserSuccess)
-      .catch( err => {
-        if(err.code === 'auth/user-not-found') {
-          return Alert.alert(
-            'Usuario nao encontrado',
-            'Deseja criar um novo usuario?',
-            [{
-              text: 'Nao',
-              onPress: () => {
-                console.log('Nao criar novo usuario')
-              },
-              style: 'cancel'
-            }, {
-              text: 'Sim',
-              onPress: () => {
-                firebase
-                  .auth()
-                  .createUserWithEmailAndPassword(mail, password)
-                  .then(loginUserSuccess)
-                  .catch(loginUserFailed)
-              }
-            }],
-            { cancelable: false }
-          )
-        }
-        loginUserFailed(err)
+    this.props.tryLogin({email, password})
+      .then(() => {
+        this.setState({ message: 'Sucesso!' })
+        this.props.navigation.replace('Main')
       })
-      .then( () => this.setState({ isLoading: false }))
   }
 
   getMessageByErrorCode(errorCode){
@@ -166,3 +134,5 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   }
 })
+
+export default connect(null, { tryLogin })(LoginPage)
